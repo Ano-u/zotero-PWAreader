@@ -132,7 +132,7 @@ export default function SettingsPage() {
     try {
       const keys = [
         "zotero_user_id",
-        "zotero_api_key_display",
+        "zotero_api_key",
         "translate_system_prompt",
         "translate_user_prompt",
         "chat_system_prompt",
