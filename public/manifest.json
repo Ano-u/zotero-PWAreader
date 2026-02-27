@@ -1,0 +1,24 @@
+{
+  "name": "Zotero Reader",
+  "short_name": "ZReader",
+  "description": "移动端 Zotero 文献阅读与翻译",
+  "start_url": "/library",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

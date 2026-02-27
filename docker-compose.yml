@@ -1,0 +1,36 @@
+services:
+  app:
+    build: .
+    container_name: zotero-reader
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # 持久化数据：SQLite 数据库 + PDF 缓存
+      - app-data:/app/data
+    networks:
+      - internal
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: zotero-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - internal
+    depends_on:
+      - app
+
+volumes:
+  app-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  internal:
+    driver: bridge
