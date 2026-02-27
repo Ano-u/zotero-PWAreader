@@ -1,36 +1,18 @@
 /**
- * 认证模块
+ * 认证模块 — Edge Runtime 兼容
  *
- * 简单密码登录 + JWT，个人使用场景。
- * 密码通过环境变量配置，bcrypt 散列验证。
- * JWT 存于 HttpOnly + Secure + SameSite=Strict Cookie。
+ * 此文件仅包含 JWT 相关函数，可在 middleware（Edge Runtime）中使用。
+ * 数据库相关的认证函数（注册、密码验证）在 auth-db.ts 中，仅供 API 路由使用。
  */
 
 import { SignJWT, jwtVerify } from "jose";
-import { hashSync, compareSync } from "bcryptjs";
 import { cookies } from "next/headers";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "default-jwt-secret-change-in-production"
 );
-const APP_PASSWORD = process.env.APP_PASSWORD || "admin";
 const COOKIE_NAME = "zr_session";
 const JWT_EXPIRY = "7d"; // 7 天有效期
-
-/** 验证密码是否正确 */
-export function verifyPassword(password: string): boolean {
-  // 如果环境变量以 $2 开头，说明已经是 bcrypt hash
-  if (APP_PASSWORD.startsWith("$2")) {
-    return compareSync(password, APP_PASSWORD);
-  }
-  // 否则直接比较明文（开发环境便捷用法）
-  return password === APP_PASSWORD;
-}
-
-/** 生成密码的 bcrypt hash（用于生产环境配置） */
-export function hashPassword(password: string): string {
-  return hashSync(password, 10);
-}
 
 /** 签发 JWT Token */
 export async function signToken(): Promise<string> {

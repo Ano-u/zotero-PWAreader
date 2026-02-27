@@ -1,7 +1,8 @@
 /**
- * 登录页面
+ * 注册页面
  *
- * 如果检测到尚未注册（首次使用），自动跳转到注册页。
+ * 仅在首次使用时展示，用户设置登录密码后自动跳转到文库。
+ * 已注册状态下访问此页面会被重定向到登录页。
  */
 
 "use client";
@@ -19,20 +20,21 @@ import {
 } from "@/components/ui/card";
 import { BookOpen, Loader2 } from "lucide-react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const router = useRouter();
 
-  // 检查是否已注册 — 未注册则跳转注册页
+  // 检查是否已注册 — 已注册则跳转登录
   useEffect(() => {
     fetch("/api/auth/check")
       .then((res) => res.json())
       .then((data) => {
-        if (!data.registered) {
-          router.replace("/register");
+        if (data.registered) {
+          router.replace("/login");
         } else {
           setChecking(false);
         }
@@ -43,13 +45,23 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    if (password.length < 6) {
+      setError("密码至少需要 6 个字符");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("两次输入的密码不一致");
+      return;
+    }
+
+    setLoading(true);
     try {
       const res = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password, action: "register" }),
       });
 
       if (res.ok) {
@@ -57,7 +69,7 @@ export default function LoginPage() {
         router.refresh();
       } else {
         const data = await res.json();
-        setError(data.error || "登录失败");
+        setError(data.error || "注册失败");
       }
     } catch {
       setError("网络错误，请重试");
@@ -81,18 +93,27 @@ export default function LoginPage() {
           <div className="mx-auto w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
             <BookOpen className="w-6 h-6 text-primary" />
           </div>
-          <CardTitle className="text-xl">Zotero Reader</CardTitle>
-          <CardDescription>输入密码以访问你的文献库</CardDescription>
+          <CardTitle className="text-xl">初始化 Zotero Reader</CardTitle>
+          <CardDescription>
+            首次使用，请设置一个登录密码
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Input
                 type="password"
-                placeholder="请输入密码"
+                placeholder="设置密码（至少 6 位）"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
+                disabled={loading}
+              />
+              <Input
+                type="password"
+                placeholder="确认密码"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
               />
               {error && <p className="text-sm text-destructive">{error}</p>}
@@ -100,15 +121,15 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={loading || !password}
+              disabled={loading || !password || !confirmPassword}
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  登录中...
+                  注册中...
                 </>
               ) : (
-                "登录"
+                "完成注册"
               )}
             </Button>
           </form>
