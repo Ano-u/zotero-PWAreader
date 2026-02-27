@@ -43,12 +43,14 @@ export async function getSession(): Promise<boolean> {
 
 /** Cookie 配置选项 */
 export function getSessionCookieOptions() {
-  const isProduction = process.env.NODE_ENV === "production";
+  // 仅在配置了域名（有 HTTPS）时启用 secure cookie
+  // 用 IP 直接访问（HTTP）时不能开 secure，否则浏览器会拒绝存储
+  const useSecure = !!process.env.DOMAIN && process.env.DOMAIN !== "your-domain.com";
   return {
     name: COOKIE_NAME,
     httpOnly: true,
-    secure: isProduction,
-    sameSite: "strict" as const,
+    secure: useSecure,
+    sameSite: useSecure ? ("strict" as const) : ("lax" as const),
     path: "/",
     maxAge: 7 * 24 * 60 * 60, // 7 天
   };
