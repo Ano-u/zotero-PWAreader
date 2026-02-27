@@ -23,7 +23,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/u
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/你的用户名/zotero-reader.git
+git clone https://github.com/Ano-u/zotero-reader.git
 cd zotero-reader
 ```
 
